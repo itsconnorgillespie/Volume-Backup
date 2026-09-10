@@ -1,6 +1,9 @@
 ## Volume S3 Backup Docker Image
 This repository aims to reduce the hassle for backing up a volume by leveraging S3 and Docker. The Docker image is currently hosted at `ghcr.io/itsconnorgillespie/volume-backup`.
 
+### Filenames
+The default filename for the archive is the current UTC timestamp formatted with no special characters. The `S3_PREFIX` environment variable can be leveraged to change the filename and or route the archive to a destination folder in the S3 bucket. For example, the `S3_PREFIX` of `backups/backup-` will upload the archive to the `backups` directory with the filename `backup-timestamp.zip` where timestamp is the current UTC timestamp.
+
 ### Quickstart Command 
 The following command runs a one-off backup of a local `data/` directory to an S3 compatible bucket. Adjust the S3 credentials and endpoint to match your cloud provider.
 
