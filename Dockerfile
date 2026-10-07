@@ -1,28 +1,26 @@
-FROM python:3.12-slim AS builder
+FROM python:3.12-alpine AS builder
 
 WORKDIR /app
 
-COPY requirements.txt ./
+COPY pyproject.toml .
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir --upgrade -r requirements.txt
+    && pip install --no-cache-dir --prefix=/install .
 
-FROM python:3.12-slim AS runtime
+FROM python:3.12-alpine AS runtime
 
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-COPY --from=builder /usr/local /usr/local
+RUN apk upgrade --no-cache \
+    && python -m pip uninstall -y pip \
+    && rm -rf /usr/local/lib/python3.12/ensurepip
+
+COPY --from=builder /install /usr/local
 COPY src ./src
 
-RUN adduser \
-    --no-create-home \
-    --disabled-password \
-    --shell /bin/bash \
-    --uid 1000 \
-    --quiet \
-    runtime
+RUN addgroup -S runtime && adduser -S -G runtime runtime
 USER runtime
 
 ENTRYPOINT ["python", "-m", "src.main"]
